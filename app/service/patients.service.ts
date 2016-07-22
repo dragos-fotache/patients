@@ -1,4 +1,4 @@
-import { Headers, Http, RequestOptions } from '@angular/http';
+import { Headers, Http, RequestOptions, Response } from '@angular/http';
 import { Injectable } from '@angular/core';
 
 import 'rxjs/add/operator/toPromise';
@@ -30,8 +30,14 @@ export class PatientsService {
 
         return this.http.get(this.path, options)
             .toPromise()
-            .then(response => response)
-            .catch(response => response);
+            .then(this.extractData)
+            .catch(this.handleError);
+    }
+
+    extractData(res: Response) {
+        let body = res.json();
+        console.log(body)
+        return body.data || { };
     }
 
     login(user: String, password: String) {

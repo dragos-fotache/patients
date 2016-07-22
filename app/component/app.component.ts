@@ -22,11 +22,13 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.patientsService.getPatients()
-                            .then(response => {
-                                      this.patients = response.json();
-                                      console.log(typeof this.patients[0].active);
-                                  });
+        this.patientsService.getPatients().then(
+            patients  => {
+                this.patients = patients;
+                console.log(patients);
+            },
+            error =>  console.log("error")
+        );
     }
 
 }
