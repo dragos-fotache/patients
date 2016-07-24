@@ -10,6 +10,7 @@ import { Patient } from '../model/patient.model';
     directives: [DataTable, Column, Paginator, Header],
     template:`
         <p-dataTable #ref
+            responsive="true"
             [value]="patients"
             selectionMode="single"
             [lazy]="true"
@@ -18,13 +19,13 @@ import { Patient } from '../model/patient.model';
             (onRowUnselect)="onRowUnselect($event)"
             [rows]="rows">
             <header>Patientenliste</header>
-            <p-column field="internalNumber" header="Nummer">   </p-column>
+            <p-column field="internalNumber" header="#" [style]="{'width':'3em'}">       </p-column>
             <p-column field="lastName"       header="Name">     </p-column>
             <p-column field="firstName"      header="Vorname">  </p-column>
             <p-column field="street"         header="Strasse">  </p-column>
-            <p-column field="zipnr"          header="PLZ">      </p-column>
+            <p-column field="zipnr"          header="PLZ" [style]="{'width':'5em'}">      </p-column>
             <p-column field="city"           header="Ort">      </p-column>
-            <p-column field="dateOfBirth"    header="Geb.Datum"></p-column>
+            <p-column field="dateOfBirth"    header="Geb.Datum" [style]="{'width':'7em'}"></p-column>
         </p-dataTable>
         <p-paginator #pag 
                      [rows]="rows" 
@@ -32,7 +33,7 @@ import { Patient } from '../model/patient.model';
                      [pageLinkSize]="3" 
                      styleClass="ui-paginator-bottom"
                      (onPageChange)="paginate($event)" 
-                     [rowsPerPageOptions]="[5,10,20]">
+                     [rowsPerPageOptions]="[5,15,20,25]">
         </p-paginator>
     `
 })
@@ -49,7 +50,7 @@ export class MainTable {
     @ViewChild('pag') 
     pag: Paginator;
 
-    rows: Number = 10;
+    rows: Number = 15;
 
     @Output()
     onLazyLoadArticles: EventEmitter<LazyLoadEvent>;

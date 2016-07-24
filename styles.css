@@ -150,3 +150,59 @@ nav a.router-link-active {
 * { 
   font-family: Arial, Helvetica, sans-serif; 
 }
+
+#square-left {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    width: 60px;
+    height: 65px;
+    position: absolute;
+    z-index: 0;
+}
+
+#rectangle-right {
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+    height:30px;
+    width:126px;
+    position: absolute;
+    left: 60px;
+    border-left:none;
+    z-index: 1;
+    text-align: left;
+}
+
+#rectangle-right.ui-state-disabled {
+    left: 23.5%;
+}
+
+#rectangle-left {
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+    width: 125px;
+    height: 30px;
+    position: absolute;
+    top: 35px;
+    left: 65px;
+    border-right:none;
+    z-index: 1;
+    text-align: left;
+}
+
+#square-right {
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    width: 60px;
+    height: 65px;
+    position: absolute;
+    left: 190px;
+    z-index: 0;
+}
+
+#area {
+    position: relative;
+    width: 100%;
+    /*height: 60px;*/
+}
