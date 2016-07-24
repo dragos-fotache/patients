@@ -6,14 +6,15 @@ import 'rxjs/add/operator/toPromise';
 import { Observable } from 'rxjs/Observable';
 
 import { Patient } from '../model/patient.model';
+import { SliceData } from './slice-data';
 
 import { Base64 } from "../util/base64";
 
 @Injectable()
 export class PatientsService {
 
-    private path = 'http://192.168.35.107:8081/patients-backend/patients';
-    //private path = 'http://localhost:8081/backend/patients';
+    // private path = 'http://192.168.35.107:8081/patients-backend/patients';
+    private path = 'http://localhost:8081/patients-backend/patients';
 
     private newurl = this.path + '/new';
     private updateurl = this.path + '/update';
@@ -34,10 +35,49 @@ export class PatientsService {
             .catch(this.handleError);
     }
 
-    extractData(res: Response) {
+    getPatientsSlice(first: Number, rows: Number, sortField: String, sortOrder: Number, searchStringParam: String) {
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let options = new RequestOptions({ headers: headers, withCredentials: true });
+
+        let lazyLoadData = { 'first': first, 'rows': rows, 'sortField': sortField, 'sortOrder': sortOrder, 'searchStringParam': searchStringParam }
+
+        return this.http.post(this.path, lazyLoadData, options)
+            .toPromise()
+            .then(this.extractSliceData)
+            .catch(this.handleError);
+    }
+
+    extractSliceData(res: Response): SliceData {
         let body = res.json();
-        console.log(body)
-        return body.data || { };
+
+        body.patients.forEach(e => {
+
+            let d: Date = new Date(e.dateOfBirth);
+
+            e.dateOfBirth = d.toLocaleDateString("ro-RO");
+            e.zipnr = e.zip.zip;
+            if (e.patientType == "KASSE") {
+                e.patientTypeLong = "Kassenpatient";
+            } else if (e.patientType == "PRIVAT") {
+                e.patientTypeLong = "Privatpatient";
+            }
+        });
+
+        return body;
+    }
+
+    extractData(res: Response): Array<Patient> {
+        let body = res.json();
+
+        body.forEach(e => {
+
+            let d: Date = new Date(e.dateOfBirth);
+
+            e.dateOfBirth = d.toLocaleDateString("ro-RO");
+            e.zip = e.zip.zip;
+        });
+
+        return body;
     }
 
     login(user: String, password: String) {

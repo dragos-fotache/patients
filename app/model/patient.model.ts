@@ -55,7 +55,8 @@ export class Patient {
                 public version?: Number,
                 public workPhone?: String,
                 public www?: String,
-                public zipid?: Number) {
+                public zipid?: Number,
+                public zipnr?: Number) {
     }
 
 

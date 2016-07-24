@@ -136,6 +136,16 @@ nav a.router-link-active {
   border-radius: 4px 0 0 4px;
 }
 
+.container.main {
+  width: 80%;
+  margin: auto;
+}
+
+.ui-widget.ui-widget-content.info {
+  padding: 1em;
+  min-height: 9em;
+} 
+
 /* everywhere else */
 * { 
   font-family: Arial, Helvetica, sans-serif; 
