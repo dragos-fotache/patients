@@ -51,7 +51,7 @@ import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton } from
                 <main-table #tab
                     [patients]="patients"
                     [count]="count"
-                    (onLazyLoadArticles)="lazyLoadArticles($event)"
+                    (onLazyLoad)="lazyLoadPatients($event)"
                     (onRowSelectEvent)="setSelectedPatient($event)">
                 </main-table>
                 <div class="ui-widget ui-widget-header" style="padding: 10px 10px">
@@ -83,7 +83,7 @@ import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton } from
                                 Kasse:
                             </div>
                             <div style="width:40%; float:left">
-                                <input style="width:70%" pInputText id="kasse" [(ngModel)]="patient.healthInsuranceId" />
+                                <input style="width:70%" pInputText id="kasse" [ngModel]="patient.insurance ? patient.insurance.healthInsuranceName : ''" />
                                 <button pButton type="submit" icon="fa-search" (click)="showKasseDialog()"></button>
                             </div>
                         </div>
@@ -113,13 +113,38 @@ import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton } from
                 </div>
             </p-dialog>
 
-            <p-dialog header="Kassen" [width]="'750'" [height]="'600'" [(visible)]="displayKasseDialog" [resizeable]="false" showEffect="fade" [modal]="true">
-                <div style="box-sizing:border-box; font-size:14px">
-                    <insurance-table [insurances]="insurances"></insurance-table>
-                </div>
+            <p-dialog header="Kassen" [width]="'850'" [height]="'700'" [(visible)]="displayKasseDialog" [resizeable]="false" showEffect="fade" [modal]="true">
                 <div>
-                    <input type="button" pbutton label="OK"></input>
-                    <input type="button" pbutton label="Cancel"></input>
+                    <div style="height: 570px">
+                        <insurance-table
+                            #insuranceTable
+                            [insurances]="insurances"
+                            (onLazyLoad)="lazyLoadInsurances($event)"
+                            [count]="insuranceCount"
+                            (onRowSelect)="setSelectedInsurance($event)">
+                        >
+                        </insurance-table>
+                        <div class="ui-widget ui-widget-header">
+                            <div class="ui-g">
+                                <div class="ui-g-9">
+                                    <form (ngSubmit)="onClickSearchInsurance()" style="margin-bottom: 0em;">
+                                        <label for="searchField">Search:  </label>
+                                        <input type="text" pInputText id="searchField" [(ngModel)]="searchTextInsuranceModel"/>
+                                        <button pButton type="submit" label="Search"></button>
+                                    </form>
+                                </div>
+                                <div class="ui-g-3" style="margin-top:0.5em">
+                                    <span>{{insuranceCount}} records found.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <footer>
+                            <button pButton label="OK" (click)="insuranceOKClick()"></button>
+                            <button type="button" pButton label="Cancel" (click)="insuranceCancelClick()"></button>
+                        </footer>
+                    </div>
                 </div>
             </p-dialog>
         </div>
@@ -130,6 +155,9 @@ export class AppComponent implements OnInit {
     @ViewChild('tab') 
     tab: MainTable;
 
+    @ViewChild('insuranceTable') 
+    insuranceTable: InsuranceTable;
+
     patients : Array<Patient>;
 
     count : Number;
@@ -137,7 +165,11 @@ export class AppComponent implements OnInit {
     searchText : String = "";
     searchTextModel: String = "";
 
+    searchTextInsurance : String = "";
+    searchTextInsuranceModel: String = "";
+
     selectedPatient: Patient;
+    selectedInsurance: Insurance;
 
     displayDialog: Boolean = true;
     patient: Patient = new Patient();
@@ -156,12 +188,20 @@ export class AppComponent implements OnInit {
     ngOnInit() {
     }
 
-    lazyLoadArticles(event: LazyLoadEvent) {
+    lazyLoadPatients(event: LazyLoadEvent) {
         this.selectedPatient = null;
         this.patientsService.getPatientsSlice(event.first, event.rows, event.sortField, event.sortOrder, this.searchText)
                         .then(slice => {
                                     this.patients = slice.patients;
                                     this.count = slice.count;
+                                });
+    }
+
+    lazyLoadInsurances(event: LazyLoadEvent) {
+        this.patientsService.getInsurancesSlice(event.first, event.rows, event.sortField, event.sortOrder, this.searchTextInsurance)
+                        .then(slice => {
+                                    this.insurances = slice.insurances;
+                                    this.insuranceCount = slice.count;
                                 });
     }
 
@@ -172,10 +212,22 @@ export class AppComponent implements OnInit {
             this.selectedPatient = patient;
     }
 
+    setSelectedInsurance(insurance) {
+        console.log("setSelectedInsurance");
+        if (this.selectedInsurance == insurance)
+            this.selectedInsurance = null;
+        else
+            this.selectedInsurance = insurance;
+    }
+
     onClickSearch() {
         this.searchText = this.searchTextModel;
         this.tab.resetPaginator();
-        return false;
+    }
+
+    onClickSearchInsurance() {
+        this.searchTextInsurance = this.searchTextInsuranceModel;
+        this.insuranceTable.resetPaginator();
     }
 
     showNewDialog() {
@@ -186,12 +238,15 @@ export class AppComponent implements OnInit {
 
     showKasseDialog() {
         this.displayKasseDialog = true;
-        this.patientsService.getInsurancesSlice(0, 100, undefined, undefined, "")
-                        .then(slice => {
-                                    this.insurances = slice.insurances;
-                                    this.insuranceCount = slice.count;
-                                    console.log(this.insurances.length);
-                                });
+    }
+
+    insuranceOKClick() {
+        this.patient.insurance = this.selectedInsurance;
+        this.displayKasseDialog = false;
+    }
+
+    insuranceCancelClick() {
+        this.displayKasseDialog = false;
     }
 
 }

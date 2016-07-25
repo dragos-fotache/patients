@@ -1,3 +1,5 @@
+import {Insurance} from "./insurance.model";
+
 export class Patient {
 
     constructor(public active?: Boolean,
@@ -35,6 +37,7 @@ export class Patient {
                 public homePhone?: String,
                 public iban?: String,
                 public internalNumber?: Number,
+                public insurance?: Insurance,
                 public lastName?: String,
                 public lastNamePrefix?: String,
                 public letterPoliteAddress?: String,

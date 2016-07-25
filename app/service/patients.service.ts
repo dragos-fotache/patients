@@ -54,6 +54,8 @@ export class PatientsService {
     extractPatientsSliceData(res: Response) {
         let body = res.json();
 
+        console.log(body);
+
         body.patients.forEach(e => {
 
             let d: Date = new Date(e.dateOfBirth);

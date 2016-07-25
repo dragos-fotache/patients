@@ -10,7 +10,6 @@ import { Patient } from '../model/patient.model';
     directives: [DataTable, Column, Paginator, Header],
     template:`
         <p-dataTable #ref
-            responsive="true"
             [value]="patients"
             selectionMode="single"
             [lazy]="true"
@@ -53,7 +52,7 @@ export class MainTable {
     rows: Number = 15;
 
     @Output()
-    onLazyLoadArticles: EventEmitter<LazyLoadEvent>;
+    onLazyLoad: EventEmitter<LazyLoadEvent>;
 
     @Output()
     onRowSelectEvent: EventEmitter<any>;
@@ -61,7 +60,7 @@ export class MainTable {
     selectedPatient: Patient;
 
     constructor() {
-        this.onLazyLoadArticles = new EventEmitter();
+        this.onLazyLoad = new EventEmitter();
         this.onRowSelectEvent = new EventEmitter();
     }
 
@@ -70,7 +69,7 @@ export class MainTable {
     }
 
     loadLazy(event) {
-        this.onLazyLoadArticles.emit(event);
+        this.onLazyLoad.emit(event);
     }
 
     onRowSelect(event) {
