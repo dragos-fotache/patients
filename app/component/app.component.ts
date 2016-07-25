@@ -1,16 +1,18 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { Patient } from '../model/patient.model';
+import { Insurance } from '../model/insurance.model';
 import { MainTable } from '../component/main-table.component';
 import { LButtonComponent } from '../component/l-button.component';
+import { InsuranceTable } from '../component/insurance-table.component';
 import { PatientsService } from '../service/patients.service';
 
-import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem } from 'primeng/primeng';
+import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton } from 'primeng/primeng';
 
 @Component({
     selector: 'my-app',
     providers: [ PatientsService ],
-    directives: [ MainTable, Button, LButtonComponent, Dialog, Dropdown ],
+    directives: [ MainTable, Button, LButtonComponent, Dialog, Dropdown, RadioButton, InsuranceTable ],
     template: `
         <div class="container main" style="overflow: hidden; position: relative">
             <div class="ui-widget-header" style="position:absolute; right: 0px; width: 260px; height: 100%; border-style: solid;">
@@ -66,30 +68,58 @@ import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem } from 'primeng/pri
             </div>
             <p-dialog header="Neuanlage Patient" [width]="'800'" [height]="'400'" [(visible)]="displayDialog" [resizeable]="false" showEffect="fade" [modal]="true">
                 <div style="box-sizing: border-box;font-size:14px">
-                    <div *ngIf="patient" style="height:400px">
-                        <div style="height:2em">
-                            <div style="width:10%; float:left"><label for="Name">Name: </label></div>
+                    <div *ngIf="patient">
+                        <div style="height:2em; margin-bottom:0.5em">
+                            <div style="width:10%; float:left" class="vcenter"><span>Geschlecht:</span></div>
+                            <div style="width:25%; float:left" class="vcenter">
+                                <input type="radio" name="sex" value="M" [(ngModel)]="patient.sex"/>
+                                M
+                                <input type="radio" name="sex" value="W" [(ngModel)]="patient.sex"/>
+                                W
+                                <input type="radio" name="sex" value="unbekannt" checked [(ngModel)]="patient.sex"/>
+                                Unbekannt
+                            </div>
+                            <div style="width:17%; float:left" class="vcenter">
+                                Kasse:
+                            </div>
+                            <div style="width:40%; float:left">
+                                <input style="width:70%" pInputText id="kasse" [(ngModel)]="patient.healthInsuranceId" />
+                                <button pButton type="submit" icon="fa-search" (click)="showKasseDialog()"></button>
+                            </div>
+                        </div>
+                        <div style="height:2em; margin-bottom:0.5em">
+                            <div style="width:10%; float:left" class="vcenter"><label for="Name">Name: </label></div>
                             <div style="width:25%; float:left"><input style="width:90%" pInputText id="Name" [(ngModel)]="patient.name" /></div>
-                            <div style="width:17%; float:left"><label for="Status">Status/Ergänzung:</label></div>
+                            <div style="width:17%; float:left" class="vcenter"><label for="Status">Status/Ergänzung:</label></div>
                             <div style="width:25%; float:left"><input style="width:90%" pInputText id="Status" [(ngModel)]="patient.name" /></div>
                             <div style="width:22%; float:left"><input style="width:90%" pInputText id="Ergaenzung" [(ngModel)]="patient.name" /></div>
                         </div>
-                        <div style="height:2em">
-                            <div style="width:10%; float:left"><label for="Vorname">Vorname: </label></div>
+                        <div style="height:2em; margin-bottom:0.5em">
+                            <div style="width:10%; float:left" class="vcenter"><label for="Vorname">Vorname: </label></div>
                             <div style="width:25%; float:left"><input style="width:90%" pInputText id="Vorname" [(ngModel)]="patient.vorname" /></div>
-                            <div style="width:17%; float:left"><label for="Status">Karte gültig:</label></div>
+                            <div style="width:17%; float:left" class="vcenter"><label for="Status">Karte gültig:</label></div>
                             <div style="width:9%; float:left"><input style="width:90%" pInputText id="Status" [(ngModel)]="patient.name" /></div>
-                            <div style="width:4%; float:left"><label>MM</label></div>
+                            <div style="width:4%; float:left" class="vcenter"><label>MM</label></div>
                             <div style="width:9%; float:left"><input style="width:90%" pInputText id="Status" [(ngModel)]="patient.name" /></div>
-                            <div style="width:3%; float:left"><label>JJ</label></div>
+                            <div style="width:3%; float:left" class="vcenter"><label>JJ</label></div>
                         </div>
-                        <div tyle="height:2em">
-                            <div style="width:10%; float:left"><label for="gebdatum">Geb.-Datum:</label></div>
+                        <div style="height:2em; margin-bottom:0.5em">
+                            <div style="width:10%; float:left" class="vcenter"><label for="gebdatum">Geb.-Datum:</label></div>
                             <div style="width:25%; float:left"><input style="width:90%" pInputText id="gebdatum" [(ngModel)]="patient.dateOfBirth" /></div>
-                            <div style="width:17%; float:left"><label for="zuzahlung">Zuzahlung:</label></div>
+                            <div style="width:17%; float:left" class="vcenter"><label for="zuzahlung">Zuzahlung:</label></div>
                             <div style="width:25%; float:left"><p-dropdown [style]="{width:'90%'}" [options]="surchargeStatuses" [(ngModel)]="selectedSurcharge"></p-dropdown></div>
                         </div>
                     </div>
+                </div>
+            </p-dialog>
+
+            <p-dialog header="Kassen" [width]="'750'" [height]="'600'" [(visible)]="displayKasseDialog" [resizeable]="false" showEffect="fade" [modal]="true">
+                <div style="box-sizing:border-box; font-size:14px">
+                    <insurance-table [insurances]="insurances"></insurance-table>
+                </div>
+                <div>
+                    <input type="button" pbutton label="OK"></input>
+                    <input type="button" pbutton label="Cancel"></input>
                 </div>
             </p-dialog>
         </div>
@@ -112,6 +142,10 @@ export class AppComponent implements OnInit {
     displayDialog: Boolean = true;
     patient: Patient = new Patient();
     isNewPatient: Boolean = false
+
+    displayKasseDialog: Boolean = false;
+    insurances: Insurance[];
+    insuranceCount: Number;
 
     surchargeStatuses : SelectItem[] = [{label: "Pflichtig", value: "PFLICHTIG"}, {label: "Frei", value: "FREI"}];
     selectedSurcharge : String;
@@ -148,6 +182,16 @@ export class AppComponent implements OnInit {
         this.isNewPatient = true;
         this.patient = new Patient();
         this.displayDialog = true;
+    }
+
+    showKasseDialog() {
+        this.displayKasseDialog = true;
+        this.patientsService.getInsurancesSlice(0, 100, undefined, undefined, "")
+                        .then(slice => {
+                                    this.insurances = slice.insurances;
+                                    this.insuranceCount = slice.count;
+                                    console.log(this.insurances.length);
+                                });
     }
 
 }

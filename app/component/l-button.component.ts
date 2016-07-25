@@ -18,7 +18,7 @@ import { EventEmitter } from '@angular/core';
                  (mouseenter)="onMouseenter($event)"
                  (mouseleave)="onMouseleave($event)"
                  (click)="buttonClicked($event)">
-                 <i [class]="'fa fa-2x ' + icon" style="padding-top: 0.6em"></i>
+                 <i [class]="'fa fa-2x ' + icon + ' vcenter'" style="padding-top: 0.6em"></i>
             </div>
             <div *ngIf="!inverted" 
                  id="rectangle-right" 
@@ -52,7 +52,7 @@ import { EventEmitter } from '@angular/core';
                  (mouseenter)="onMouseenter($event)"
                  (mouseleave)="onMouseleave($event)"
                  (click)="buttonClicked($event)">
-                 <i [class]="'fa fa-2x ' + icon" style="padding-top: 0.6em"></i>
+                 <i [class]="'fa fa-2x ' + icon + ' vcenter'" style="padding-top: 0.6em"></i>
             </div>
 
         </div>

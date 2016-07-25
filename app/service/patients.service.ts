@@ -15,6 +15,7 @@ export class PatientsService {
 
     // private path = 'http://192.168.35.107:8081/patients-backend/patients';
     private path = 'http://localhost:8081/patients-backend/patients';
+    private insurancesPath = 'http://localhost:8081/patients-backend/insurances';
 
     private newurl = this.path + '/new';
     private updateurl = this.path + '/update';
@@ -26,15 +27,6 @@ export class PatientsService {
     constructor(private http: Http) {
     }
 
-    getPatients() {
-        let options = new RequestOptions({ withCredentials: true });
-
-        return this.http.get(this.path, options)
-            .toPromise()
-            .then(this.extractData)
-            .catch(this.handleError);
-    }
-
     getPatientsSlice(first: Number, rows: Number, sortField: String, sortOrder: Number, searchStringParam: String) {
         let headers = new Headers({ 'Content-Type': 'application/json' });
         let options = new RequestOptions({ headers: headers, withCredentials: true });
@@ -43,11 +35,23 @@ export class PatientsService {
 
         return this.http.post(this.path, lazyLoadData, options)
             .toPromise()
-            .then(this.extractSliceData)
+            .then(this.extractPatientsSliceData)
             .catch(this.handleError);
     }
 
-    extractSliceData(res: Response): SliceData {
+    getInsurancesSlice(first: Number, rows: Number, sortField: String, sortOrder: Number, searchStringParam: String) {
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let options = new RequestOptions({ headers: headers, withCredentials: true });
+
+        let lazyLoadData = { 'first': first, 'rows': rows, 'sortField': sortField, 'sortOrder': sortOrder, 'searchStringParam': searchStringParam }
+
+        return this.http.post(this.insurancesPath, lazyLoadData, options)
+            .toPromise()
+            .then(this.extractInsurancesSliceData)
+            .catch(this.handleError);
+    }
+
+    extractPatientsSliceData(res: Response) {
         let body = res.json();
 
         body.patients.forEach(e => {
@@ -66,15 +70,12 @@ export class PatientsService {
         return body;
     }
 
-    extractData(res: Response): Array<Patient> {
+    extractInsurancesSliceData(res: Response) {
         let body = res.json();
 
-        body.forEach(e => {
-
-            let d: Date = new Date(e.dateOfBirth);
-
-            e.dateOfBirth = d.toLocaleDateString("ro-RO");
-            e.zip = e.zip.zip;
+        body.insurances.forEach(e => {
+            e.plz = (e.zip ? e.zip.zip : "");
+            e.ort = (e.zip ? e.zip.city : "");
         });
 
         return body;
