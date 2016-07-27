@@ -212,3 +212,11 @@ nav a.router-link-active {
     top: 50%;
     transform: translateY(-69%);
 }
+
+.ng-valid[required] {
+  border: 2px solid #42A948; /* green */
+}
+
+.ng-invalid {
+  border: 2px solid #a94442; /* red */
+}

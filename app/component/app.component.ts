@@ -1,4 +1,7 @@
+import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton, Checkbox, Calendar } from 'primeng/primeng';
+
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { Form, FormBuilder, FormGroup, Validators, REACTIVE_FORM_DIRECTIVES } from '@angular/forms';
 
 import { Patient } from '../model/patient.model';
 import { Insurance } from '../model/insurance.model';
@@ -7,18 +10,17 @@ import { LButtonComponent } from '../component/l-button.component';
 import { InsuranceTable } from '../component/insurance-table.component';
 import { PatientsService } from '../service/patients.service';
 
-import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton, Checkbox } from 'primeng/primeng';
 
 @Component({
     selector: 'my-app',
     providers: [ PatientsService ],
-    directives: [ MainTable, Button, LButtonComponent, Dialog, Dropdown, RadioButton, InsuranceTable, Checkbox ],
+    directives: [ MainTable, Button, LButtonComponent, Dialog, Dropdown, RadioButton, InsuranceTable, Checkbox, Calendar, REACTIVE_FORM_DIRECTIVES ],
     template: `
         <div class="container main" style="overflow: hidden; position: relative">
             <div class="ui-widget-header" style="position:absolute; right: 0px; width: 260px; height: 100%; border-style: solid;">
                 <div>Menu</div>
                 <div style="margin-left: 3px; margin-top: 15px">
-                        <l-button [icon]="'fa-file-o'" [label]="'New'" (click)="showNewDialog()"></l-button>
+                        <l-button [icon]="'fa-file-o'" [label]="'New'" (click)="showNewPatientDialog()"></l-button>
                         <l-button [icon]="'fa-edit'" [label]="'Edit'" [inverted]="true"></l-button>
                 </div>
             </div>
@@ -36,15 +38,15 @@ import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton, Check
                         </div>
                         <div class="ui-g">
                             <div class="ui-g-3">{{ selectedPatient ? selectedPatient.street : ""}}</div>
-                            <div class="ui-g-3">{{ selectedPatient ? "Tel.-nr.: " + selectedPatient.homePhone : ""}}</div>
+                            <div class="ui-g-3">{{ selectedPatient ? "Tel.-nr.: " + (selectedPatient.homePhone ? selectedPatient.homePhone : "") : ""}}</div>
                         </div>
                         <div class="ui-g">
-                            <div class="ui-g-3">{{ selectedPatient ? selectedPatient.zipnr + " " + selectedPatient.city : ""}}</div>
-                            <div class="ui-g-3">{{ selectedPatient ? "Patientart: " + selectedPatient.patientTypeLong: ""}}</div>
+                            <div class="ui-g-3">{{ selectedPatient ? (selectedPatient.zipnr ? selectedPatient.zipnr : "") + " " + (selectedPatient.city ? selectedPatient.city : "") : ""}}</div>
+                            <div class="ui-g-3">{{ selectedPatient ? "Patientart: " + (selectedPatient.patientTypeLong ? selectedPatient.patientTypeLong : ""): ""}}</div>
                         </div>
                         <div class="ui-g">
                             <div class="ui-g-3">{{ selectedPatient ? "Geb.-Datum: " + selectedPatient.dateOfBirth : ""}}</div>
-                            <div class="ui-g-3">{{ selectedPatient ? selectedPatient.insurance.healthInsuranceName: ""}}</div>
+                            <div class="ui-g-3">{{ selectedPatient ? (selectedPatient.insurance ? selectedPatient.insurance.healthInsuranceName : ""): ""}}</div>
                         </div>
                     </div>
                 </div>
@@ -103,11 +105,11 @@ import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton, Check
             </p-dialog>
         </div>
 
-        <p-dialog header="Neuanlage Patient" [width]="'800'" [height]="'600'" [(visible)]="displayDialog" [resizeable]="false" showEffect="fade" [modal]="true">
-                <div style="box-sizing: border-box;font-size:14px">
+        <p-dialog header="Neuanlage Patient" [width]="'870'" [height]="'550'" [(visible)]="displayNewPatientDialog" [resizeable]="false" showEffect="fade" [modal]="true">
+                <form style="box-sizing: border-box;font-size:16px; height:400px" (ngSubmit)="newPatientSubmit()" #spy>
                     <div *ngIf="patient">
                         <div style="height:2em; margin-bottom:0.5em">
-                            <div style="width:10%; float:left" class="vcenter"><span>Geschlecht:</span></div>
+                            <div style="width:15%; float:left" class="vcenter"><span>Geschlecht:</span></div>
                             <div style="width:25%; float:left" class="vcenter">
                                 <input type="radio" name="sex" value="M" [(ngModel)]="patient.sex"/>
                                 M
@@ -120,12 +122,18 @@ import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton, Check
                                 Kasse:
                             </div>
                             <div style="width:40%; float:left">
-                                <input style="width:70%" pInputText disabled id="kasse" name="kasse" [ngModel]="patient.insurance ? patient.insurance.healthInsuranceName : ''" />
-                                <button pButton type="submit" icon="fa-search" (click)="showKasseDialog()"></button>
+                                <input 
+                                    style="width:70%" 
+                                    pInputText 
+                                    disabled
+                                    name="kasse" 
+                                    [(ngModel)]="patient.healthInsuranceName"
+                                />
+                                <button type='button' pButton icon="fa-search" (click)="showKasseDialog()"></button>
                             </div>
                         </div>
                         <div style="height:2em; margin-bottom:0.5em">
-                            <div style="width:10%; float:left" class="vcenter">Anrede:</div>
+                            <div style="width:15%; float:left" class="vcenter">Anrede:</div>
                             <div style="width:25%; float:left">
                                 <p-dropdown [options]="politeAddresses" name="politeAddresses" [(ngModel)]="patient.politeAddress"></p-dropdown>
                             </div>
@@ -134,11 +142,11 @@ import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton, Check
                             </div>
                             <div style="width:40%; float:left">
                                 <input style="width:70%" pInputText disabled id="iknr" name="iknr" [ngModel]="patient.insurance ? patient.insurance.iknumber : ''" />
-                                <button pButton type="submit" icon="fa-search" (click)="showKasseDialog()"></button>
+                                <button type='button' pButton icon="fa-search" (click)="showKasseDialog()"></button>
                             </div>
                         </div>
                         <div style="height:2em; margin-bottom:0.5em">
-                            <div style="width:10%; float:left" class="vcenter">Zusatz/Titel:</div>
+                            <div style="width:15%; float:left" class="vcenter">Zusatz/Titel:</div>
                             <div style="width:13%; float:left">
                                 <p-dropdown [style]="{'width': '65%'}" [options]="lastNamePrefixes" name="lastNamePrefixes" [(ngModel)]="patient.lastNamePrefix"></p-dropdown>
                             </div>
@@ -153,15 +161,33 @@ import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton, Check
                             </div>
                         </div>
                         <div style="height:2em; margin-bottom:0.5em">
-                            <div style="width:10%; float:left" class="vcenter"><label for="lastName">Name: </label></div>
-                            <div style="width:25%; float:left"><input style="width:90%" pInputText id="lastName" name="lastName" [(ngModel)]="patient.lastName" /></div>
-                            <div style="width:17%; float:left" class="vcenter"><label for="Status">Status/Ergänzung:</label></div>
-                            <div style="width:25%; float:left"><input style="width:90%" id="Status"/></div>
-                            <div style="width:15%; float:left"><input style="width:90%" id="Ergaenzung"/></div>
+                            <div style="width:15%; float:left" class="vcenter"><label for="lastName">Name: </label></div>
+                            <div style="width:25%; float:left">
+                                <input 
+                                    style="width:90%" 
+                                    pInputText 
+                                    name="lastName"
+                                    class="form-control" 
+                                    required
+                                    [(ngModel)]="patient.lastName"
+                                />
+                            </div>
+                            <div style="width:17%; float:left" class="vcenter">Status/Ergänzung:</div>
+                            <div style="width:25%; float:left"><input style="width:90%" id="status" name="status" [(ngModel)]="patient.status"/></div>
+                            <div style="width:15%; float:left"><input style="width:90%" id="ergaenzung" name="ergaenzung" [(ngModel)]="patient.ergaenzung"/></div>
                         </div>
                         <div style="height:2em; margin-bottom:0.5em">
-                            <div style="width:10%; float:left" class="vcenter"><label for="firstName">Vorname: </label></div>
-                            <div style="width:25%; float:left"><input style="width:90%" pInputText id="firstName" name="firstName" [(ngModel)]="patient.firstName" /></div>
+                            <div style="width:15%; float:left" class="vcenter"><label for="firstName">Vorname: </label></div>
+                            <div style="width:25%; float:left">
+                                <input 
+                                    style="width:90%" 
+                                    pInputText 
+                                    name="firstName"
+                                    class="form-control" 
+                                    required
+                                    [(ngModel)]="patient.firstName"
+                                />
+                            </div>
                             <div style="width:17%; float:left" class="vcenter"><label for="Status">Karte gültig:</label></div>
                             <div style="width:9%; float:left"><input style="width:90%" id="kartegueltigmm"/></div>
                             <div style="width:4%; float:left" class="vcenter"><label>MM</label></div>
@@ -169,32 +195,77 @@ import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton, Check
                             <div style="width:3%; float:left" class="vcenter"><label>JJ</label></div>
                         </div>
                         <div style="height:2em; margin-bottom:0.5em">
-                            <div style="width:10%; float:left" class="vcenter"><label for="gebdatum">Geb.-Datum:</label></div>
-                            <div style="width:25%; float:left"><input style="width:90%" pInputText id="gebdatum" name="gebdatum" [(ngModel)]="patient.dateOfBirth" /></div>
+                            <div style="width:15%; float:left" class="vcenter"><label for="gebdatum">Geb.-Datum:</label></div>
+                            <div style="width:25%; float:left">
+                                <p-calendar 
+                                    [inputStyle]="{'width':'70%'}" 
+                                    showAnim="slideDown" 
+                                    showIcon="true"
+                                    dateFormat="dd/mm/yy"
+                                    [yearNavigator]="true"
+                                    name="gebdatum" 
+                                    [(ngModel)]="patient.dateOfBirthString" 
+                                >
+                                </p-calendar>
+                            </div>
                             <div style="width:17%; float:left" class="vcenter"><label for="zuzahlung">Zuzahlung:</label></div>
                             <div style="width:25%; float:left">
                                 <p-dropdown [options]="surchargeStatuses" name="surchargeStatus" [(ngModel)]="patient.surchargeStatus"></p-dropdown>
                             </div>
                         </div>
                         <div style="height:2em; margin-bottom:0.5em">
-                            <div style="width:10%; float:left" class="vcenter">Strasse:</div>
+                            <div style="width:15%; float:left" class="vcenter">Strasse:</div>
                             <div style="width:25%; float:left"><input style="width:90%" pInputText id="strasse" name="strasse" [(ngModel)]="patient.street" /></div>
                             <div style="width:17%; float:left" class="vcenter">
                                 <label for="homepatient">Heimpatient:</label>
                             </div>
                             <div style="width:5%; float:left">
-                                <p-checkbox name="homepatient" value="true" [(ngModel)]="patient.homepatient"></p-checkbox>
+                                <p-checkbox name="homepatient" [(ngModel)]="patient.homepatient" (onChange)="homepatientChkboxChange"></p-checkbox>
                             </div>
-                            <div style="width:10%; float:left" class="vcenter">Entfernung:</div>
+                            <div style="width:15%; float:left" class="vcenter">Entfernung:</div>
                             <div style="width:5%; float:left"><input style="width:70%" pInputText id="distance" name="distance" [(ngModel)]="patient.distance" /></div>
                             <div style="width:5%; float:left" class="vcenter">km</div>
                         </div>
+                        <div style="height:2em; margin-bottom:0.5em">
+                            <div style="width:15%; float:left" class="vcenter">PLZ/Ort:</div>
+                            <div style="width:12%; float:left">
+                                <input style="width:80%" pInputText id="plz" name="plz" />
+                            </div>
+                            <div style="width:13%; float:left">
+                                <input style="width:80%" pInputText id="ort" name="city" [(ngModel)]="patient.city" />
+                            </div>
+                            <div style="width:17%; float:left" class="vcenter">Behandlung:</div>
+                            <div style="width:25%; float:left">
+                                <p-dropdown [options]="handlingTypes" name="handlingType" [(ngModel)]="patient.handlingType"></p-dropdown>
+                            </div>
+                        </div>
+                        <div style="height:2em; margin-bottom:0.5em">
+                            <div style="width:15%; float:left" class="vcenter">Tel-Nr privat:</div>
+                            <div style="width:25%; float:left">
+                                <input style="width:90%" pInputText id="homePhone" name="homePhone" [(ngModel)]="patient.homePhone"/>
+                            </div>
+                        </div>
+                        <div style="height:2em; margin-bottom:0.5em">
+                            <div style="width:15%; float:left" class="vcenter">Mobil-Nr:</div>
+                            <div style="width:25%; float:left">
+                                <input style="width:90%" pInputText id="mobilePhone" name="mobilePhone" [(ngModel)]="patient.mobilePhone"/>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <div style="float: right; margin-right:2em">
+                        <footer>
+                            <button pButton type="submit" label="OK"></button>
+                            <button type="button" pButton label="Cancel" (click)="newPatientCancelClick()"></button>
+                        </footer>
+                    </div>
+                </form>
             </p-dialog>
     `
 })
 export class AppComponent implements OnInit { 
+
+    @ViewChild('spy')
+    form: Form;
 
     @ViewChild('tab') 
     tab: MainTable;
@@ -215,7 +286,7 @@ export class AppComponent implements OnInit {
     selectedPatient: Patient;
     selectedInsurance: Insurance;
 
-    displayDialog: Boolean = false;
+    displayNewPatientDialog: Boolean = false;
     patient: Patient = new Patient();
     isNewPatient: Boolean = false
 
@@ -227,6 +298,7 @@ export class AppComponent implements OnInit {
     politeAddresses : SelectItem[] = [{label: "None", value: ""}, {label: "Frau", value: "FRAU"}, {label: "Herr", value: "HERR"}];
     lastNamePrefixes : SelectItem[] = [{label: "None", value: ""}, {label: "Baroness", value: "BARONESS"}, {label: "Grafin", value: "GRAFIN"}];
     titles : SelectItem[] = [{label: "None", value: ""}, {label: "Prof", value: "PROF"}, {label: "Dr", value: "DR"}];
+    handlingTypes: SelectItem[] = [{label: "Praxis", value: "PRAXIS"}, {label: "Hausbesuch", value: "HAUSBESUCH"}];
     selectedSurcharge : String;
 
     constructor (private patientsService: PatientsService) {
@@ -260,7 +332,6 @@ export class AppComponent implements OnInit {
     }
 
     setSelectedInsurance(insurance) {
-        console.log("setSelectedInsurance");
         if (this.selectedInsurance == insurance)
             this.selectedInsurance = null;
         else
@@ -277,10 +348,10 @@ export class AppComponent implements OnInit {
         this.insuranceTable.resetPaginator();
     }
 
-    showNewDialog() {
+    showNewPatientDialog() {
         this.isNewPatient = true;
         this.patient = new Patient();
-        this.displayDialog = true;
+        this.displayNewPatientDialog = true;
     }
 
     showKasseDialog() {
@@ -289,11 +360,28 @@ export class AppComponent implements OnInit {
 
     insuranceOKClick() {
         this.patient.insurance = this.selectedInsurance;
+        this.patient.healthInsuranceName = this.selectedInsurance.healthInsuranceName;
         this.displayKasseDialog = false;
     }
 
     insuranceCancelClick() {
         this.displayKasseDialog = false;
+    }
+
+    newPatientSubmit() {
+        this.patientsService.createPatient(this.patient).then(e => console.log("patient created"));
+        this.displayNewPatientDialog = false;
+        this.tab.resetPaginator();
+    }
+
+    newPatientCancelClick() {
+        this.displayNewPatientDialog = false;
+    }
+
+    homepatientChkboxChange(checked: boolean) {
+        console.log("homepatientChkboxChange");
+        this.patient.homepatient = checked ? 'true' : 'false';
+        return false;
     }
 
 }

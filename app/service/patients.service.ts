@@ -14,8 +14,9 @@ import { Base64 } from "../util/base64";
 export class PatientsService {
 
     // private path = 'http://192.168.35.107:8081/patients-backend/patients';
-    private path = 'http://localhost:8081/patients-backend/patients';
-    private insurancesPath = 'http://localhost:8081/patients-backend/insurances';
+    private path = 'http://localhost:8001/patients-backend/patients';
+    private insurancesPath = 'http://localhost:8001/patients-backend/insurances';
+    private createPatientPath = 'http://localhost:8001/patients-backend/patients/create';
 
     private newurl = this.path + '/new';
     private updateurl = this.path + '/update';
@@ -51,17 +52,29 @@ export class PatientsService {
             .catch(this.handleError);
     }
 
+    createPatient(p: Patient) {
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let options = new RequestOptions({ headers: headers, withCredentials: true });
+
+        console.log(p);
+
+        return this.http.post(this.createPatientPath, p, options)
+            .toPromise()
+            .then()
+            .catch();
+    }
+
     extractPatientsSliceData(res: Response) {
         let body = res.json();
 
-        console.log(body);
-
         body.patients.forEach(e => {
 
-            let d: Date = new Date(e.dateOfBirth);
+            if (e.dateOfBirth !== null) {
+                let d: Date = new Date(e.dateOfBirth);
+                e.dateOfBirth = d.toLocaleDateString("fr-BE");
+            }
 
-            e.dateOfBirth = d.toLocaleDateString("ro-RO");
-            e.zipnr = e.zip.zip;
+            if (e.zip) e.zipnr = e.zip.zip;
             if (e.patientType == "KASSE") {
                 e.patientTypeLong = "Kassenpatient";
             } else if (e.patientType == "PRIVAT") {
