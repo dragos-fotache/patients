@@ -16,6 +16,7 @@ export class PatientsService {
     // private path = 'http://192.168.35.107:8081/patients-backend/patients';
     private path = 'http://localhost:8001/patients-backend/patients';
     private insurancesPath = 'http://localhost:8001/patients-backend/insurances';
+    private zipsPath = 'http://localhost:8001/patients-backend/zips';
     private createPatientPath = 'http://localhost:8001/patients-backend/patients/create';
 
     private newurl = this.path + '/new';
@@ -49,6 +50,18 @@ export class PatientsService {
         return this.http.post(this.insurancesPath, lazyLoadData, options)
             .toPromise()
             .then(this.extractInsurancesSliceData)
+            .catch(this.handleError);
+    }
+
+    getZipsSlice(first: Number, rows: Number, sortField: String, sortOrder: Number, searchStringParam: String) {
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let options = new RequestOptions({ headers: headers, withCredentials: true });
+
+        let lazyLoadData = { 'first': first, 'rows': rows, 'sortField': sortField, 'sortOrder': sortOrder, 'searchStringParam': searchStringParam }
+
+        return this.http.post(this.zipsPath, lazyLoadData, options)
+            .toPromise()
+            .then(this.extractZipsSliceData)
             .catch(this.handleError);
     }
 
@@ -93,6 +106,12 @@ export class PatientsService {
             e.ort = (e.zip ? e.zip.city : "");
         });
 
+        return body;
+    }
+
+    extractZipsSliceData(res: Response) {
+        let body = res.json();
+        console.log(body);
         return body;
     }
 

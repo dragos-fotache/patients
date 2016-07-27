@@ -1,4 +1,5 @@
-import {Insurance} from "./insurance.model";
+import { Insurance } from "./insurance.model";
+import { Zip } from "./zip.model";
 
 export class Patient {
 
@@ -60,8 +61,9 @@ export class Patient {
                 public version?: Number,
                 public workPhone?: String,
                 public www?: String,
+                public zip?: Zip,
                 public zipid?: Number,
-                public zipnr?: Number) {
+                public zipnr?: String) {
     }
 
 

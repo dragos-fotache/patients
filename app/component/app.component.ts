@@ -1,20 +1,22 @@
-import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton, Checkbox, Calendar } from 'primeng/primeng';
+import { LazyLoadEvent, Button, Dialog, Dropdown, SelectItem, RadioButton, Checkbox, Calendar, Panel } from 'primeng/primeng';
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Form, FormBuilder, FormGroup, Validators, REACTIVE_FORM_DIRECTIVES } from '@angular/forms';
 
 import { Patient } from '../model/patient.model';
 import { Insurance } from '../model/insurance.model';
-import { MainTable } from '../component/main-table.component';
+import { Zip } from '../model/zip.model';
 import { LButtonComponent } from '../component/l-button.component';
+import { MainTable } from '../component/main-table.component';
 import { InsuranceTable } from '../component/insurance-table.component';
+import { ZipTable } from '../component/zip-table.component';
 import { PatientsService } from '../service/patients.service';
 
 
 @Component({
     selector: 'my-app',
     providers: [ PatientsService ],
-    directives: [ MainTable, Button, LButtonComponent, Dialog, Dropdown, RadioButton, InsuranceTable, Checkbox, Calendar, REACTIVE_FORM_DIRECTIVES ],
+    directives: [ MainTable, Button, LButtonComponent, Dialog, Dropdown, RadioButton, InsuranceTable, Checkbox, Calendar, Panel, ZipTable, REACTIVE_FORM_DIRECTIVES ],
     template: `
         <div class="container main" style="overflow: hidden; position: relative">
             <div class="ui-widget-header" style="position:absolute; right: 0px; width: 260px; height: 100%; border-style: solid;">
@@ -31,22 +33,22 @@ import { PatientsService } from '../service/patients.service';
                     </div>
                     <div class="ui-widget ui-widget-content info" style="margin-left:1em">
                         <div class="ui-g">
-                            <div class="ui-g-3" [class.ui-widget-header]="selectedPatient">
+                            <div class="ui-g-4" [class.ui-widget-header]="selectedPatient">
                                 {{ selectedPatient ? selectedPatient.firstName + ", " + selectedPatient.lastName : "" }}
                             </div>
-                            <div class="ui-g-3"></div>
+                            <div class="ui-g-5"></div>
                         </div>
                         <div class="ui-g">
-                            <div class="ui-g-3">{{ selectedPatient ? selectedPatient.street : ""}}</div>
-                            <div class="ui-g-3">{{ selectedPatient ? "Tel.-nr.: " + (selectedPatient.homePhone ? selectedPatient.homePhone : "") : ""}}</div>
+                            <div class="ui-g-4">{{ selectedPatient ? selectedPatient.street : ""}}</div>
+                            <div class="ui-g-5">{{ selectedPatient ? "Tel.-nr.: " + (selectedPatient.homePhone ? selectedPatient.homePhone : "") : ""}}</div>
                         </div>
                         <div class="ui-g">
-                            <div class="ui-g-3">{{ selectedPatient ? (selectedPatient.zipnr ? selectedPatient.zipnr : "") + " " + (selectedPatient.city ? selectedPatient.city : "") : ""}}</div>
-                            <div class="ui-g-3">{{ selectedPatient ? "Patientart: " + (selectedPatient.patientTypeLong ? selectedPatient.patientTypeLong : ""): ""}}</div>
+                            <div class="ui-g-4">{{ selectedPatient ? (selectedPatient.zipnr ? selectedPatient.zipnr : "") + " " + (selectedPatient.city ? selectedPatient.city : "") : ""}}</div>
+                            <div class="ui-g-5">{{ selectedPatient ? "Patientart: " + (selectedPatient.patientTypeLong ? selectedPatient.patientTypeLong : ""): ""}}</div>
                         </div>
                         <div class="ui-g">
-                            <div class="ui-g-3">{{ selectedPatient ? "Geb.-Datum: " + selectedPatient.dateOfBirth : ""}}</div>
-                            <div class="ui-g-3">{{ selectedPatient ? (selectedPatient.insurance ? selectedPatient.insurance.healthInsuranceName : ""): ""}}</div>
+                            <div class="ui-g-4">{{ selectedPatient ? "Geb.-Datum: " + selectedPatient.dateOfBirth : ""}}</div>
+                            <div class="ui-g-5">{{ selectedPatient ? (selectedPatient.insurance ? selectedPatient.insurance.healthInsuranceName : ""): ""}}</div>
                         </div>
                     </div>
                 </div>
@@ -60,8 +62,8 @@ import { PatientsService } from '../service/patients.service';
                     <div class="ui-g">
                         <div class="ui-g-9">
                             <form (ngSubmit)="onClickSearch()" style="margin-bottom: 0em;">
-                                <label for="searchField">Search:  </label>
-                                <input type="text" pInputText id="searchField" name="searchTextModel" [(ngModel)]="searchTextModel"/>
+                                Search:
+                                <input type="text" pInputText name="searchTextModel" [(ngModel)]="searchTextModel"/>
                                 <button pButton type="submit" label="Search"></button>
                             </form>
                         </div>
@@ -69,9 +71,9 @@ import { PatientsService } from '../service/patients.service';
                 </div>
             </div>
 
-            <p-dialog header="Kassen" [width]="'850'" [height]="'700'" [(visible)]="displayKasseDialog" [resizeable]="false" showEffect="fade" [modal]="true">
+            <p-dialog header="Kassen" [width]="'850'" [height]="'620'" [(visible)]="displayKasseDialog" [resizeable]="false" showEffect="fade" [modal]="true">
                 <div>
-                    <div style="height: 570px">
+                    <div style="height: 480px">
                         <insurance-table
                             #insuranceTable
                             [insurances]="insurances"
@@ -84,8 +86,8 @@ import { PatientsService } from '../service/patients.service';
                             <div class="ui-g">
                                 <div class="ui-g-9">
                                     <form (ngSubmit)="onClickSearchInsurance()" style="margin-bottom: 0em;">
-                                        <label for="searchField">Search:  </label>
-                                        <input type="text" pInputText id="searchField" name="searchField" [(ngModel)]="searchTextInsuranceModel"/>
+                                        Search:
+                                        <input type="text" pInputText  name="searchFieldKasse" [(ngModel)]="searchTextInsuranceModel"/>
                                         <button pButton type="submit" label="Search"></button>
                                     </form>
                                 </div>
@@ -99,6 +101,40 @@ import { PatientsService } from '../service/patients.service';
                         <footer>
                             <button pButton label="OK" (click)="insuranceOKClick()"></button>
                             <button type="button" pButton label="Cancel" (click)="insuranceCancelClick()"></button>
+                        </footer>
+                    </div>
+                </div>
+            </p-dialog>
+            <p-dialog header="Zips" [width]="'400'" [height]="'600'" [(visible)]="displayZipDialog" [resizeable]="false" showEffect="fade" [modal]="true">
+                <div>
+                    <div style="height: 460px">
+                        <zip-table
+                            #zipTable
+                            [zips]="zips"
+                            (onLazyLoad)="lazyLoadZips($event)"
+                            [count]="zipCount"
+                            (onRowSelect)="setSelectedZip($event)"
+                        >
+                        </zip-table>
+                        <div class="ui-widget ui-widget-header">
+                            <div class="ui-g">
+                                <div class="ui-g-9">
+                                    <form (ngSubmit)="onClickSearchZip()" style="margin-bottom: 0em;">
+                                        Search:
+                                        <input type="text" pInputText name="searchFieldZip" [(ngModel)]="searchTextZipModel"/>
+                                        <button pButton type="submit" label="Search" style="margin-top:1em"></button>
+                                    </form>
+                                </div>
+                                <div class="ui-g-3" style="margin-top:0.5em">
+                                    <span>{{zipCount}} records found.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <footer>
+                            <button pButton label="OK" (click)="zipOKClick()"></button>
+                            <button type="button" pButton label="Cancel" (click)="zipCancelClick()"></button>
                         </footer>
                     </div>
                 </div>
@@ -228,11 +264,24 @@ import { PatientsService } from '../service/patients.service';
                         </div>
                         <div style="height:2em; margin-bottom:0.5em">
                             <div style="width:15%; float:left" class="vcenter">PLZ/Ort:</div>
-                            <div style="width:12%; float:left">
-                                <input style="width:80%" pInputText id="plz" name="plz" />
+                            <div style="width:8%; float:left">
+                                <input 
+                                    style="width:90%" 
+                                    pInputText 
+                                    name="plz" 
+                                    [(ngModel)]="patient.zipnr" 
+                                />
                             </div>
-                            <div style="width:13%; float:left">
-                                <input style="width:80%" pInputText id="ort" name="city" [(ngModel)]="patient.city" />
+                            <div style="width:6%; float:left">
+                                <button type='button' pButton icon="fa-search" (click)="showZipDialog()"></button>
+                            </div>
+                            <div style="width:11%; float:left">
+                                <input 
+                                    style="width:80%" 
+                                    pInputText 
+                                    name="city" 
+                                    [(ngModel)]="patient.city" 
+                                />
                             </div>
                             <div style="width:17%; float:left" class="vcenter">Behandlung:</div>
                             <div style="width:25%; float:left">
@@ -273,26 +322,34 @@ export class AppComponent implements OnInit {
     @ViewChild('insuranceTable') 
     insuranceTable: InsuranceTable;
 
-    patients : Array<Patient>;
+    @ViewChild('zipTable') 
+    zipTable: ZipTable;
+
+    patients : Patient[];
+    insurances: Insurance[];
+    zips: Zip[];
 
     count : Number;
+    insuranceCount: Number;
+    zipCount: Number;
 
     searchText : String = "";
     searchTextModel: String = "";
-
     searchTextInsurance : String = "";
     searchTextInsuranceModel: String = "";
+    searchTextZip : String = "";
+    searchTextZipModel: String = "";
 
     selectedPatient: Patient;
     selectedInsurance: Insurance;
+    selectedZip: Zip;
 
     displayNewPatientDialog: Boolean = false;
+    displayKasseDialog: Boolean = false;
+    displayZipDialog: Boolean = false;
+
     patient: Patient = new Patient();
     isNewPatient: Boolean = false
-
-    displayKasseDialog: Boolean = false;
-    insurances: Insurance[];
-    insuranceCount: Number;
 
     surchargeStatuses : SelectItem[] = [{label: "Pflichtig", value: "PFLICHTIG"}, {label: "Frei", value: "FREI"}];
     politeAddresses : SelectItem[] = [{label: "None", value: ""}, {label: "Frau", value: "FRAU"}, {label: "Herr", value: "HERR"}];
@@ -324,6 +381,14 @@ export class AppComponent implements OnInit {
                                 });
     }
 
+    lazyLoadZips(event: LazyLoadEvent) {
+        this.patientsService.getZipsSlice(event.first, event.rows, event.sortField, event.sortOrder, this.searchTextZip)
+                        .then(slice => {
+                                    this.zips = slice.zips;
+                                    this.zipCount = slice.count;
+                                });
+    }
+
     setSelectedPatient(patient) {
         if (this.selectedPatient == patient)
             this.selectedPatient = null;
@@ -338,6 +403,13 @@ export class AppComponent implements OnInit {
             this.selectedInsurance = insurance;
     }
 
+    setSelectedZip(zip) {
+        if (this.selectedZip == zip)
+            this.selectedZip = null;
+        else
+            this.selectedZip = zip;
+    }
+
     onClickSearch() {
         this.searchText = this.searchTextModel;
         this.tab.resetPaginator();
@@ -346,6 +418,11 @@ export class AppComponent implements OnInit {
     onClickSearchInsurance() {
         this.searchTextInsurance = this.searchTextInsuranceModel;
         this.insuranceTable.resetPaginator();
+    }
+
+    onClickSearchZip() {
+        this.searchTextZip = this.searchTextZipModel;
+        this.zipTable.resetPaginator();
     }
 
     showNewPatientDialog() {
@@ -358,6 +435,10 @@ export class AppComponent implements OnInit {
         this.displayKasseDialog = true;
     }
 
+    showZipDialog() {
+        this.displayZipDialog = true;
+    }
+
     insuranceOKClick() {
         this.patient.insurance = this.selectedInsurance;
         this.patient.healthInsuranceName = this.selectedInsurance.healthInsuranceName;
@@ -366,6 +447,17 @@ export class AppComponent implements OnInit {
 
     insuranceCancelClick() {
         this.displayKasseDialog = false;
+    }
+
+    zipOKClick() {
+        this.patient.zip = this.selectedZip;
+        this.patient.zipnr = this.selectedZip.zip;
+        this.patient.city = this.selectedZip.city;
+        this.displayZipDialog = false;
+    }
+
+    zipCancelClick() {
+        this.displayZipDialog = false;
     }
 
     newPatientSubmit() {

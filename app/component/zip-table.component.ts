@@ -2,17 +2,17 @@ import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core
 
 import { DataTable, Column, LazyLoadEvent, Header, Paginator } from 'primeng/primeng';
 
-import { Insurance } from '../model/insurance.model';
+import { Zip } from '../model/zip.model';
 
 @Component({
-    selector: 'insurance-table',
+    selector: 'zip-table',
     directives: [DataTable, Column, Header, Paginator],
     template:`
         <p-dataTable #ref
-                [value]="insurances"
+                [value]="zips"
                 selectionMode="single"
                 scrollable="true"
-                scrollHeight="350px"
+                scrollHeight="300px"
                 [rows]="rows" 
                 [lazy]="true"
                 (onLazyLoad)="loadLazy($event)"
@@ -20,11 +20,8 @@ import { Insurance } from '../model/insurance.model';
                 (onRowUnselect)="rowUnselect($event)"
         >
 
-            <p-column field="iknumber" header="IK-Nr"></p-column>
-            <p-column field="healthInsuranceName" header="Krankenkasse"></p-column>
-            <p-column field="street" header="Strasse"></p-column>
-            <p-column field="plz" header="PLZ"></p-column>
-            <p-column field="ort" header="Ort"></p-column>
+            <p-column field="zip" header="PLZ"></p-column>
+            <p-column field="city" header="Ort"></p-column>
 
         </p-dataTable>
         <p-paginator #pag 
@@ -37,7 +34,7 @@ import { Insurance } from '../model/insurance.model';
         </p-paginator>
     `
 })
-export class InsuranceTable {
+export class ZipTable {
 
     @ViewChild('ref') 
     ref: DataTable;
@@ -46,7 +43,7 @@ export class InsuranceTable {
     pag: Paginator;
 
     @Input()
-    insurances: Insurance[];
+    zips: Zip[];
 
     @Input()
     count: Number;
