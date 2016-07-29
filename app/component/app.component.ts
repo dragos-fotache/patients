@@ -23,7 +23,11 @@ import { PatientsService } from '../service/patients.service';
                 <div>Menu</div>
                 <div style="margin-left: 3px; margin-top: 15px">
                         <l-button [icon]="'fa-file-o'" [label]="'New'" (click)="showNewPatientDialog()"></l-button>
-                        <l-button [icon]="'fa-edit'" [label]="'Edit'" [inverted]="true"></l-button>
+                        <l-button [icon]="'fa-edit'" [label]="'Edit'" [inverted]="true" (click)="showEditPatientDialog()"></l-button>
+                </div>
+                <div style="margin-left: 3px; margin-top: 90px">
+                        <l-button [icon]="'fa-eraser'" [label]="'Delete'" [green]="true" (click)="deletePatient()"></l-button>
+                        <l-button [label]="''" [inverted]="true" [disabled]="true" [green]="true"></l-button>
                 </div>
             </div>
             <div style="margin-right: 262px">
@@ -47,7 +51,7 @@ import { PatientsService } from '../service/patients.service';
                             <div class="ui-g-5">{{ selectedPatient ? "Patientart: " + (selectedPatient.patientTypeLong ? selectedPatient.patientTypeLong : ""): ""}}</div>
                         </div>
                         <div class="ui-g">
-                            <div class="ui-g-4">{{ selectedPatient ? "Geb.-Datum: " + selectedPatient.dateOfBirth : ""}}</div>
+                            <div class="ui-g-4">{{ selectedPatient ? "Geb.-Datum: " + selectedPatient.dateOfBirthString : ""}}</div>
                             <div class="ui-g-5">{{ selectedPatient ? (selectedPatient.insurance ? selectedPatient.insurance.healthInsuranceName : ""): ""}}</div>
                         </div>
                     </div>
@@ -56,7 +60,8 @@ import { PatientsService } from '../service/patients.service';
                     [patients]="patients"
                     [count]="count"
                     (onLazyLoad)="lazyLoadPatients($event)"
-                    (onRowSelectEvent)="setSelectedPatient($event)">
+                    (onRowSelectEvent)="setSelectedPatient($event)"
+                    (onRowDblclickEvent)="patientRowDblclick($event)">
                 </main-table>
                 <div class="ui-widget ui-widget-header" style="padding: 10px 10px">
                     <div class="ui-g">
@@ -105,9 +110,9 @@ import { PatientsService } from '../service/patients.service';
                     </div>
                 </div>
             </p-dialog>
-            <p-dialog header="Zips" [width]="'400'" [height]="'600'" [(visible)]="displayZipDialog" [resizeable]="false" showEffect="fade" [modal]="true">
+            <p-dialog header="Zips" [width]="'400'" [height]="'700'" [(visible)]="displayZipDialog" [resizeable]="false" showEffect="fade" [modal]="true">
                 <div>
-                    <div style="height: 460px">
+                    <div style="height: 500px">
                         <zip-table
                             #zipTable
                             [zips]="zips"
@@ -132,7 +137,7 @@ import { PatientsService } from '../service/patients.service';
                         </div>
                     </div>
                     <div>
-                        <footer>
+                        <footer style="margin-top: 1em">
                             <button pButton label="OK" (click)="zipOKClick()"></button>
                             <button type="button" pButton label="Cancel" (click)="zipCancelClick()"></button>
                         </footer>
@@ -141,8 +146,8 @@ import { PatientsService } from '../service/patients.service';
             </p-dialog>
         </div>
 
-        <p-dialog header="Neuanlage Patient" [width]="'870'" [height]="'550'" [(visible)]="displayNewPatientDialog" [resizeable]="false" showEffect="fade" [modal]="true">
-                <form style="box-sizing: border-box;font-size:16px; height:400px" (ngSubmit)="newPatientSubmit()" #spy>
+        <p-dialog header="{{isNewPatient ? 'Edit Patient' : 'Edit Patient'}}" [width]="'870'" [height]="'550'" [(visible)]="displayPatientDialog" [resizeable]="false" showEffect="fade" [modal]="true">
+                <form style="box-sizing: border-box;font-size:16px; height:400px" (ngSubmit)="patientSubmit()" #spy>
                     <div *ngIf="patient">
                         <div style="height:2em; margin-bottom:0.5em">
                             <div style="width:15%; float:left" class="vcenter"><span>Geschlecht:</span></div>
@@ -163,7 +168,7 @@ import { PatientsService } from '../service/patients.service';
                                     pInputText 
                                     disabled
                                     name="kasse" 
-                                    [(ngModel)]="patient.healthInsuranceName"
+                                    [ngModel]="patient.insurance ? patient.insurance.healthInsuranceName : ''"
                                 />
                                 <button type='button' pButton icon="fa-search" (click)="showKasseDialog()"></button>
                             </div>
@@ -193,7 +198,7 @@ import { PatientsService } from '../service/patients.service';
                                 Vers-Nr.:
                             </div>
                             <div style="width:40%; float:left">
-                                <input style="width:70%" pInputText id="versnr"/>
+                                <input style="width:70%" pInputText name="versnr" [(ngModel)]="patient.healthInsuranceAccount"/>
                             </div>
                         </div>
                         <div style="height:2em; margin-bottom:0.5em">
@@ -209,8 +214,8 @@ import { PatientsService } from '../service/patients.service';
                                 />
                             </div>
                             <div style="width:17%; float:left" class="vcenter">Status/Ergänzung:</div>
-                            <div style="width:25%; float:left"><input style="width:90%" id="status" name="status" [(ngModel)]="patient.status"/></div>
-                            <div style="width:15%; float:left"><input style="width:90%" id="ergaenzung" name="ergaenzung" [(ngModel)]="patient.ergaenzung"/></div>
+                            <div style="width:25%; float:left"><input style="width:90%" id="status" name="status" [(ngModel)]="patient.healthInsuranceStatus"/></div>
+                            <div style="width:15%; float:left"><input style="width:90%" id="ergaenzung" name="ergaenzung" [(ngModel)]="patient.statusExtension"/></div>
                         </div>
                         <div style="height:2em; margin-bottom:0.5em">
                             <div style="width:15%; float:left" class="vcenter"><label for="firstName">Vorname: </label></div>
@@ -225,9 +230,9 @@ import { PatientsService } from '../service/patients.service';
                                 />
                             </div>
                             <div style="width:17%; float:left" class="vcenter"><label for="Status">Karte gültig:</label></div>
-                            <div style="width:9%; float:left"><input style="width:90%" id="kartegueltigmm"/></div>
+                            <div style="width:9%; float:left"><input style="width:90%" name="kartegueltigmm"/></div>
                             <div style="width:4%; float:left" class="vcenter"><label>MM</label></div>
-                            <div style="width:9%; float:left"><input style="width:90%" id="kartegueltigjj"/></div>
+                            <div style="width:9%; float:left"><input style="width:90%" name="kartegueltigjj"/></div>
                             <div style="width:3%; float:left" class="vcenter"><label>JJ</label></div>
                         </div>
                         <div style="height:2em; margin-bottom:0.5em">
@@ -256,7 +261,7 @@ import { PatientsService } from '../service/patients.service';
                                 <label for="homepatient">Heimpatient:</label>
                             </div>
                             <div style="width:5%; float:left">
-                                <p-checkbox name="homepatient" [(ngModel)]="patient.homepatient" (onChange)="homepatientChkboxChange"></p-checkbox>
+                                <p-checkbox name="homepatient" value="homepatient" [(ngModel)]="checkboxValues"></p-checkbox>
                             </div>
                             <div style="width:15%; float:left" class="vcenter">Entfernung:</div>
                             <div style="width:5%; float:left"><input style="width:70%" pInputText id="distance" name="distance" [(ngModel)]="patient.distance" /></div>
@@ -268,6 +273,7 @@ import { PatientsService } from '../service/patients.service';
                                 <input 
                                     style="width:90%" 
                                     pInputText 
+                                    disabled
                                     name="plz" 
                                     [(ngModel)]="patient.zipnr" 
                                 />
@@ -279,6 +285,7 @@ import { PatientsService } from '../service/patients.service';
                                 <input 
                                     style="width:80%" 
                                     pInputText 
+                                    disabled
                                     name="city" 
                                     [(ngModel)]="patient.city" 
                                 />
@@ -304,7 +311,7 @@ import { PatientsService } from '../service/patients.service';
                     <div style="float: right; margin-right:2em">
                         <footer>
                             <button pButton type="submit" label="OK"></button>
-                            <button type="button" pButton label="Cancel" (click)="newPatientCancelClick()"></button>
+                            <button type="button" pButton label="Cancel" (click)="patientCancelClick()"></button>
                         </footer>
                     </div>
                 </form>
@@ -325,6 +332,8 @@ export class AppComponent implements OnInit {
     @ViewChild('zipTable') 
     zipTable: ZipTable;
 
+    checkboxValues = [];
+
     patients : Patient[];
     insurances: Insurance[];
     zips: Zip[];
@@ -344,7 +353,7 @@ export class AppComponent implements OnInit {
     selectedInsurance: Insurance;
     selectedZip: Zip;
 
-    displayNewPatientDialog: Boolean = false;
+    displayPatientDialog: Boolean = false;
     displayKasseDialog: Boolean = false;
     displayZipDialog: Boolean = false;
 
@@ -396,6 +405,11 @@ export class AppComponent implements OnInit {
             this.selectedPatient = patient;
     }
 
+    patientRowDblclick(patient) {
+        this.selectedPatient = patient;
+        this.showEditPatientDialog();
+    }
+
     setSelectedInsurance(insurance) {
         if (this.selectedInsurance == insurance)
             this.selectedInsurance = null;
@@ -428,7 +442,20 @@ export class AppComponent implements OnInit {
     showNewPatientDialog() {
         this.isNewPatient = true;
         this.patient = new Patient();
-        this.displayNewPatientDialog = true;
+        this.displayPatientDialog = true;
+        this.checkboxValues = [];
+        if (this.patient.homepatient == 'true') {
+            this.checkboxValues.push("homepatient");
+        }
+    }
+
+    showEditPatientDialog() {
+        if (this.selectedPatient) {
+            this.isNewPatient = false;
+            this.patient = this.selectedPatient;
+            this.displayPatientDialog = true;
+            this.checkboxValues = this.patient.homepatient == "true" ? ["homepatient"] : [];
+        }
     }
 
     showKasseDialog() {
@@ -460,20 +487,29 @@ export class AppComponent implements OnInit {
         this.displayZipDialog = false;
     }
 
-    newPatientSubmit() {
-        this.patientsService.createPatient(this.patient).then(e => console.log("patient created"));
-        this.displayNewPatientDialog = false;
-        this.tab.resetPaginator();
+    patientSubmit() {
+        this.patient.homepatient = this.checkboxValues.indexOf("homepatient") != -1 ? "true" : "false";
+
+        console.log(this.patient);
+
+        if (this.isNewPatient) {
+            this.patientsService.createPatient(this.patient).then(e => this.tab.reloadPaginator());
+        } else {
+            this.patientsService.updatePatient(this.patient).then(e => this.tab.reloadPaginator());
+        }
+        this.displayPatientDialog = false;
+        ;
     }
 
-    newPatientCancelClick() {
-        this.displayNewPatientDialog = false;
+    patientCancelClick() {
+        this.displayPatientDialog = false;
     }
 
-    homepatientChkboxChange(checked: boolean) {
-        console.log("homepatientChkboxChange");
-        this.patient.homepatient = checked ? 'true' : 'false';
-        return false;
+    deletePatient() {
+        if (this.selectedPatient) {
+            this.patientsService.deletePatient(this.selectedPatient.internalNumber).
+                            then(e => this.tab.reloadPaginator());
+        }
     }
 
 }

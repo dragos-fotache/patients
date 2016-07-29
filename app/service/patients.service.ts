@@ -13,18 +13,17 @@ import { Base64 } from "../util/base64";
 @Injectable()
 export class PatientsService {
 
-    // private path = 'http://192.168.35.107:8081/patients-backend/patients';
-    private path = 'http://localhost:8001/patients-backend/patients';
-    private insurancesPath = 'http://localhost:8001/patients-backend/insurances';
-    private zipsPath = 'http://localhost:8001/patients-backend/zips';
-    private createPatientPath = 'http://localhost:8001/patients-backend/patients/create';
+    private basePath = 'http://192.168.35.107:8001/patients-backend/';
+    // private basePath = 'http://localhost:8081/patients-backend/';
+    private path = this.basePath + 'patients';
+    private insurancesPath = this.basePath + 'insurances';
+    private zipsPath = this.basePath + 'zips';
+    private createPatientPath = this.basePath + 'patients/create';
+    private updatePatientPath = this.basePath + 'patients/update';
+    private deletePatientPath = this.basePath + 'patients/delete';
 
-    private newurl = this.path + '/new';
-    private updateurl = this.path + '/update';
-    private deleteurl = this.path + '/delete';
-    private testurl = this.path + '/test';
-    private loginurl = this.path + '/login';
-    private logouturl = this.path + '/logout';
+    private loginurl = this.basePath + 'login';
+    private logouturl = this.basePath + 'logout';
 
     constructor(private http: Http) {
     }
@@ -69,23 +68,35 @@ export class PatientsService {
         let headers = new Headers({ 'Content-Type': 'application/json' });
         let options = new RequestOptions({ headers: headers, withCredentials: true });
 
-        console.log(p);
-
         return this.http.post(this.createPatientPath, p, options)
             .toPromise()
             .then()
             .catch();
     }
 
+    updatePatient(p: Patient) {
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let options = new RequestOptions({ headers: headers, withCredentials: true });
+
+        return this.http.post(this.updatePatientPath, p, options)
+            .toPromise()
+            .then()
+            .catch();
+    }
+
+    deletePatient(id: Number) {
+
+        let options = new RequestOptions({ withCredentials: true });
+        return this.http.post(this.deletePatientPath + '/' + id, "", options)
+                        .toPromise()
+                        .then()
+                        .catch();
+    }
+
     extractPatientsSliceData(res: Response) {
         let body = res.json();
 
         body.patients.forEach(e => {
-
-            if (e.dateOfBirth !== null) {
-                let d: Date = new Date(e.dateOfBirth);
-                e.dateOfBirth = d.toLocaleDateString("fr-BE");
-            }
 
             if (e.zip) e.zipnr = e.zip.zip;
             if (e.patientType == "KASSE") {
@@ -111,7 +122,6 @@ export class PatientsService {
 
     extractZipsSliceData(res: Response) {
         let body = res.json();
-        console.log(body);
         return body;
     }
 

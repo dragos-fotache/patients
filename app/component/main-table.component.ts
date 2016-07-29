@@ -16,6 +16,7 @@ import { Patient } from '../model/patient.model';
             (onLazyLoad)="loadLazy($event)"
             (onRowSelect)="onRowSelect($event)"
             (onRowUnselect)="onRowUnselect($event)"
+            (onRowDblclick)="onRowDblclick($event)"
             [rows]="rows">
             <header>Patientenliste</header>
             <p-column field="internalNumber" header="#" [style]="{'width':'3em'}">       </p-column>
@@ -24,7 +25,7 @@ import { Patient } from '../model/patient.model';
             <p-column field="street"         header="Strasse">  </p-column>
             <p-column field="zipnr"          header="PLZ" [style]="{'width':'5em'}">      </p-column>
             <p-column field="city"           header="Ort">      </p-column>
-            <p-column field="dateOfBirth"    header="Geb.Datum" [style]="{'width':'7em'}"></p-column>
+            <p-column field="dateOfBirthString"    header="Geb.Datum" [style]="{'width':'7em'}"></p-column>
         </p-dataTable>
         <p-paginator #pag 
                      [rows]="rows" 
@@ -57,11 +58,15 @@ export class MainTable {
     @Output()
     onRowSelectEvent: EventEmitter<any>;
 
+    @Output()
+    onRowDblclickEvent: EventEmitter<any>;
+
     selectedPatient: Patient;
 
     constructor() {
         this.onLazyLoad = new EventEmitter();
         this.onRowSelectEvent = new EventEmitter();
+        this.onRowDblclickEvent = new EventEmitter();
     }
 
     paginate(event) {
@@ -80,8 +85,16 @@ export class MainTable {
         this.onRowSelectEvent.emit(event.data);
     }
 
+    onRowDblclick(event) {
+        this.onRowDblclickEvent.emit(event.data);
+    }
+
     resetPaginator() {
         this.pag.changePageToFirst();
+    }
+
+    reloadPaginator() {
+        this.pag.changePage(this.pag.getPage());
     }
 
 }

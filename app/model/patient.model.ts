@@ -22,8 +22,7 @@ export class Patient {
                 public city?: String,
                 public company?: String,
                 public countryCode?: String,
-                public dateOfBirth?: Date,
-                public dateOfBirthString?: Date,
+                public dateOfBirthString?: String,
                 public deleted?: Number,
                 public distance?: Number,
                 public doctorId?: Number,
@@ -66,10 +65,4 @@ export class Patient {
                 public zipnr?: String) {
     }
 
-
-    
-    public doStuff() {
-        console.log("doStrugg");
-    }
-    
 }

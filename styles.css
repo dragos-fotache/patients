@@ -220,3 +220,17 @@ nav a.router-link-active {
 .ng-invalid {
   border: 2px solid #a94442; /* red */
 }
+
+.ui-button.ui-button-green, button.ui-button.ui-state-default.ui-button-green, .ui-button.ui-state-default.ui-button-green {
+	border: 1px solid #5bcc75;
+	color: #FFFFFF;
+	background: #63da7f;
+}
+
+
+button.ui-button.ui-state-hover.ui-button-green, .ui-button.ui-state-hover.ui-button-green,
+button.ui-button.ui-state-focus.ui-button-green, .ui-button.ui-state-focus.ui-button-green {
+	border: 1px solid #51b769;
+	background: #59c773;
+	outline: 0 none;
+}
